@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vichar Social - A Sharma Group Venture</title>
+    <!-- Google Fonts for Netflix-style typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Premium Netflix-inspired Dark Red Theme */
+        :root {
+            --bg-color: #141414;
+            --card-bg: #1f1f1f;
+            --netflix-red: #E50914;
+            --netflix-red-hover: #B81D24;
+            --text-main: #FFFFFF;
+            --text-muted: #808080;
+            --border-color: #2F2F2F;
+            --admin-gold: #FFD700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .app-container {
+            display: flex;
+            width: 100%;
+            max-width: 1250px;
+            min-height: 100vh;
+        }
+
+        /* Left Sidebar Positioning */
+        .sidebar {
+            width: 250px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            height: 100vh;
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 30px;
+        }
+
+        .brand-title {
+            color: var(--netflix-red);
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .brand-sub {
+            color: var(--text-muted);
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 2px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-main);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(229, 9, 20, 0.1);
+            color: var(--netflix-red);
+        }
+
+        .nav-item.admin-nav {
+            color: var(--admin-gold);
+            border: 1px dashed rgba(255, 215, 0, 0.3);
+            margin-top: 15px;
+        }
+        .nav-item.admin-nav:hover {
+            background-color: rgba(255, 215, 0, 0.1);
+            color: var(--admin-gold);
+        }
+
+        /* Main Content Feed Area */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            margin-right: 350px;
+            border-right: 1px solid var(--border-color);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        .page-header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(5px);
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Right Sidebar View */
+        .right-panel {
+            width: 350px;
+            padding: 20px;
+            position: fixed;
+            right: calc((100% - 1250px) / 2);
+            height: 100vh;
+            overflow-y: auto;
+        }
+        @media (max-width: 1250px) {
+            .right-panel { right: 0; }
+        }
+
+        .panel-box {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--netflix-red);
+            padding-left: 8px;
+        }
+
+        /* View Switching Logic */
+        .page-view {
+            display: none;
+        }
+
+        .page-view.active-view {
+            display: block;
+        }
+
+        /* Components: Tweet Box */
+        .tweet-box {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--text-main);
+            border: 2px solid var(--netflix-red);
+            flex-shrink: 0;
+        }
+
+        .tweet-box-body {
+            flex: 1;
+        }
+
+        .tweet-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 18px;
+            resize: none;
+            outline: none;
+            min-height: 60px;
+        }
+
+        .tweet-box-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .btn-premium {
+            background-color: var(--netflix-red);
+            color: var(--text-main);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-premium:hover {
+            background-color: var(--netflix-red-hover);
+        }
+
+        /* Components: Tweet Card Elements */
+        .tweet-feed {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tweet-card {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 15px;
+            transition: background 0.2s;
+        }
+
+        .tweet-card:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .tweet-main-content {
+            flex: 1;
+        }
+
+        .tweet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .display-name {
+            font-weight: bold;
+        }
+
+        .username {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .tweet-text {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+        }
+
+        .tweet-actions {
+            display: flex;
+            gap: 40px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .action-btn:hover {
+            color: var(--text-main);
+        }
+
+        .action-btn.liked {
+            color: var(--netflix-red);
+        }
+
+        .action-btn.comment-btn:hover {
+            color: #1da1f2;
+        }
+
+        /* Comment Thread Section */
+        .comment-section {
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 2px solid var(--border-color);
+        }
+
+        .comment-input-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .comment-input {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 6px 12px;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .comment-item {
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+            font-size: 14px;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Legal / Meta Static Text Pages */
+        .legal-page {
+            padding: 25px;
+        }
+
+        .legal-page h2 {
+            color: var(--netflix-red);
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .legal-page h3 {
+            margin: 20px 0 10px 0;
+            font-size: 18px;
+        }
+
+        .legal-page p, .legal-page ul {
+            color: #d2d2d2;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .legal-page ul {
+            padding-left: 20px;
+        }
+
+        /* Admin Management Dashboard Interface */
+        .admin-dashboard {
+            padding: 20px;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .admin-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .admin-card h3 {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            color: var(--admin-gold);
+        }
+
+        .admin-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .btn-danger {
+            background-color: var(--netflix-red);
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .btn-danger:hover {
+            background-color: var(--netflix-red-hover);
+        }
+
+        .btn-warn {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid var(--admin-gold);
+            padding: 4px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Quick Utility Footer Links */
+        .mini-footer {
+            margin-top: 15px;
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            line-height: 1.4;
+        }
+
+        .mini-footer span {
+            cursor: pointer;
+        }
+
+        .mini-footer span:hover {
+            text-decoration: underline;
+            color: var(--text-main);
+        }
+
+        /* Notification Badges / Pill Markers */
+        .badge {
+            background-color: var(--netflix-red);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="brand-title">Vichar</span>
+                <span class="brand-sub">Sharma Group</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="switchView('feed-view')">
+                    <i class="fa-solid fa-house"></i> Home
+                </li>
+                <li class="nav-item" onclick="switchView('explore-view')">
+                    <i class="fa-solid fa-hashtag"></i> Explore
+                </li>
+                <li class="nav-item" onclick="switchView('notifications-view')">
+                    <i class="fa-solid fa-bell"></i> Alerts <span class="badge" id="alert-count">2</span>
+                </li>
+                <li class="nav-item" onclick="switchView('about-view')">
+                    <i class="fa-solid fa-circle-info"></i> About Us
+                </li>
+                <li class="nav-item" onclick="switchView('contact-view')">
+                    <i class="fa-solid fa-envelope"></i> Contact
+                </li>
+                <li class="nav-item admin-nav" onclick="switchView('admin-view')">
+                    <i class="fa-solid fa-lock"></i> Admin Portal
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Display Feed Router -->
+        <main class="main-content">
+            <!-- 1. HOME FEED VIEW -->
+            <div id="feed-view" class="page-view active-view">
+                <div class="page-header">Home Feed</div>
+                
+                <!-- Create Post Input Component -->
+                <div class="tweet-box">
+                    <div class="avatar">U</div>
+                    <div class="tweet-box-body">
+                        <textarea class="tweet-input" id="post-textarea" placeholder="What thoughts are in your mind today?"></textarea>
+                        <div class="tweet-box-footer">
+                            <button class="btn-premium" onclick="createNewPost()">Publish Vichar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Post Stream -->
+                <div class="tweet-feed" id="main-feed-target">
+                    <!-- Dynamic client-side population loops here -->
+                </div>
+            </div>
+
+            <!-- 2. EXPLORE VIEW -->
+            <div id="explore-view" class="page-view">
+                <div class="page-header">Explore Trending</div>
+                <div class="legal-page">
+                    <h2>#TrendingNow on Vichar</h2>
+                    <p style="color:var(--text-muted)">Realtime curation engine brought to you by Sharma Group.</p>
+                    <div class="panel-box" style="margin-top:20px;">
+                        <div class="brand-sub" style="color:var(--netflix-red)">1 · Trending Global</div>
+                        <div style="font-weight:bold; font-size:18px; margin:5px 0;">#SharmaGroupTech</div>
+                        <div style="color:var(--text-muted); font-size:13px;">45.2K Vichars published</div>
+                    </div>
+                    <div class="panel-box">
+                        <div class="brand-sub" style="color:var(--netflix-red)">2 · Entertainment</div>
+                        <div style="font-weight:bold; font-size:18px; margin:5px 0;">#PremiumDarkUI</div>
+                        <div style="color:var(--text-muted); font-size:13px;">32.1K Vichars published</div>
+                    </div>
+                    <div class="panel-box">
+                        <div class="brand-sub" style="color:var(--netflix-red)">3 · Innovation</div>
+                        <div style="font-weight:bold; font-size:18px; margin:5px 0;">#VicharSocialLaunch</div>
+                        <div style="color:var(--text-muted); font-size:13px;">19.8K Vichars published</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. ALERTS / NOTIFICATIONS VIEW -->
+            <div id="notifications-view" class="page-view">
+                <div class="page-header">Notifications & Activity</div>
+                <div class="legal-page">
+                    <div class="panel-box" style="border-left: 3px solid var(--netflix-red);">
+                        <p style="margin:0; font-weight:bold;">❤️ Aditi Sharma liked your recent Vichar post</p>
+                        <span style="font-size:12px; color:var(--text-muted)">2 hours ago</span>
+                    </div>
+                    <div class="panel-box" style="border-left: 3px solid var(--netflix-red);">
+                        <p style="margin:0; font-weight:bold;">💬 Rajan Verma left a comment on your profile wall</p>
+                        <span style="font-size:12px; color:var(--text-muted)">5 hours ago</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. ABOUT US LEGAL PAGE -->
+            <div id="about-view" class="page-view">
+                <div class="page-header">About Our Corporate Vision</div>
+                <div class="legal-page">
+                    <h2>Vichar Social</h2>
+                    <p>Welcome to <strong>Vichar Social</strong>, a premium, next-generation microscopic microblogging platform envisioned, engineered, and sustained globally by the prestigious <strong>Sharma Group</strong>.</p>
+                    <p>Our platform borrows design minimalism and elegance from premium cinematic streaming networks to create a high-contrast, deeply engaging atmosphere where ideas flow freely without the pollution of unvetted visual feeds. We believe that raw textual thought is the highest currency of human communication.</p>
+                    <h3>Corporate Governance</h3>
+                    <p>Under stewardship of Sharma Group, Vichar Social strictly adheres to ethical data aggregation protocols, transparent community ecosystem guidelines, and proactive modern web asset security measures.</p>
+                </div>
+            </div>
+
+            <!-- 5. CONTACT US PAGE -->
+            <div id="contact-view" class="page-view">
+                <div class="page-header">Contact Corporate Office</div>
+                <div class="legal-page">
+                    <h2>Get In Touch With Us</h2>
+                    <p>For strategic institutional alignments, advertisement placements, technical inquiries, or backend administrative reports, please reach directly to our corporate communication desk at the official node:</p>
+                    
+                    <div class="panel-box" style="margin-top:20px; border: 1px dashed var(--netflix-red);">
+                        <h3 style="margin-top:0; color:var(--text-main);"><i class="fa-solid fa-envelope-open-text"></i> Direct Mailbox Node</h3>
+                        <p style="font-size:18px; font-weight:bold; color:var(--netflix-red); margin-bottom:5px;">
+                            Sharmagroup2026business@gmail.com
+                        </p>
+                        <p style="font-size:13px; color:var(--text-muted); margin:0;">
+                            Standard response duration averages within 24-48 business fiscal hours.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. TERMS & CONDITIONS -->
+            <div id="terms-view" class="page-view">
+                <div class="page-header">Terms and Conditions of Usage</div>
+                <div class="legal-page">
+                    <h2>Legal Agreement & Policy Framework</h2>
+                    <p>By registering data nodes or publishing material statements onto Vichar Social (a proprietary service of Sharma Group), you unconditionally assent to the legal restrictions set below:</p>
+                    <h3>1. Acceptable Distribution</h3>
+                    <p>Users maintain title to raw textual submissions but extend to Sharma Group a non-exclusive, multi-region, fee-free runtime operating token framework to host and route data safely.</p>
+                    <h3>2. Prohibited Interactions</h3>
+                    <p>Malicious bot execution, profile scraping, harassment, or distribution of unauthorized marketing scripts will generate sudden node invalidation and hardware address restriction via our backend admin grid.</p>
+                </div>
+            </div>
+
+            <!-- 7. PRIVACY POLICY -->
+            <div id="privacy-view" class="page-view">
+                <div class="page-header">Global Privacy & Data Safety Policy</div>
+                <div class="legal-page">
+                    <h2>Privacy Assurance Index</h2>
+                    <p>Sharma Group operates an open framework for absolute transparency. Your trust represents our primary performance index metrics.</p>
+                    <h3>Data Retention Infrastructure</h3>
+                    <p>Vichar Social saves client state modifications, active token profiles, and interactions directly to memory caches or local cryptographically contained registers to assure third-party advertising tracking scripts remain blocked entirely.</p>
+                    <p>For requests detailing absolute deletion of data points, transmit structured directives to <strong>Sharmagroup2026business@gmail.com</strong>.</p>
+                </div>
+            </div>
+
+            <!-- 8. ADMINISTRATIVE SECRET PORTAL -->
+            <div id="admin-view" class="page-view">
+                <div class="page-header" style="color:var(--admin-gold);"><i class="fa-solid fa-shield-halved"></i> Proprietary Control Grid Dashboard</div>
+                <div class="admin-dashboard">
+                    <p style="color:var(--text-muted); margin-bottom:20px;">Secure live local system dashboard for active moderation. Real actions require a database link, but this control room updates local state registers immediately.</p>
+                    
+                    <div class="admin-grid">
+                        <!-- Left Panel: User Accounts -->
+                        <div class="admin-card">
+                            <h3>Active Platform Users</h3>
+                            <div id="admin-user-list-target">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                        <!-- Right Panel: Micro Comments -->
+                        <div class="admin-card">
+                            <h3>Live Stream Comments</h3>
+                            <div id="admin-comment-list-target">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Side Utility Widgets -->
+        <aside class="right-panel">
+            <div class="panel-box">
+                <div class="panel-title">Corporate Sponsor</div>
+                <p style="font-size:14px; font-weight:bold; color:var(--text-main);">Sharma Group Holdings</p>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">Investing in systemic technological platforms for a seamless human microblogging future.</p>
+            </div>
+
+            <div class="panel-box">
+                <div class="panel-title">Who to Follow</div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="display:flex; align-items:center; justify-content:between;">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <div class="avatar" style="width:30px; height:30px; font-size:12px; border-color:var(--admin-gold)">SG</div>
+                            <div>
+                                <div style="font-size:13px; font-weight:bold;">Sharma Group Official</div>
+                                <div style="font-size:11px; color:var(--text-muted);">@sharmagroup</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:between;">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <div class="avatar" style="width:30px; height:30px; font-size:12px;">AV</div>
+                            <div>
+                                <div style="font-size:13px; font-weight:bold;">Aryan Varma</div>
+                                <div style="font-size:11px; color:var(--text-muted);">@aryan_tech</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Universal Footer Links Navigation Map -->
+            <div class="mini-footer">
+                <span onclick="switchView('about-view')">About Us</span>
+                <span onclick="switchView('contact-view')">Contact</span>
+                <span onclick="switchView('terms-view')">Terms of Service</span>
+                <span onclick="switchView('privacy-view')">Privacy Policy</span>
+                <br>
+                <p>© 2026 Sharma Group Venture. Powered by Vichar Micro-Systems. Correspondence: Sharmagroup2026business@gmail.com</p>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Application Controller Logic Layer -->
+    <script>
+        // Core Mock Database State Array Models
+        let globalPosts = [
+            {
+                id: 101,
+                userHandle: "@rahul_kumar",
+                userDisplay: "Rahul Kumar",
+                content: "The choice of deep black and crimson hues on this interface brings back the true cinema feeling. Pure text thoughts feel much more premium here!",
+                likes: 24,
+                likedByMe: false,
+                comments: [
+                    { id: 201, userHandle: "@riya_v", text: "Completely agreed! Highly readable design structure." },
+                    { id: 202, userHandle: "@sharmagroup", text: "Thank you for supporting our digital media layout initiative." }
+                ]
+            },
+            {
+                id: 102,
+                userHandle: "@priya_sharma",
+                userDisplay: "Priya Sharma",
+                content: "Launching Vichar Social as an alternate minimal micro-blogging tool is exactly what we needed in 2026. Free from excessive visual noise.",
+                likes: 89,
+                likedByMe: true,
+                comments: [
+                    { id: 203, userHandle: "@dev_singh", text: "Kudos to the Sharma Group governance system." }
+                ]
+            }
+        ];
+
+        let globalUsers = [
+            { handle: "@rahul_kumar", name: "Rahul Kumar", status: "Active" },
+            { handle: "@priya_sharma", name: "Priya Sharma", status: "Active" },
+            { handle: "@riya_v", name: "Riya V", status: "Active" },
+            { handle: "@dev_singh", name: "Dev Singh", status: "Active" },
+            { handle: "@spammer99", name: "Bot Node 99", status: "Banned" }
+        ];
+
+        // View Router Switching Engine
+        function switchView(viewId) {
+            // Unset all active views and menus
+            document.querySelectorAll('.page-view').forEach(view => {
+                view.classList.remove('active-view');
+            });
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Activate chosen target layout elements
+            const targetView = document.getElementById(viewId);
+            if(targetView) {
+                targetView.classList.add('active-view');
+            }
+
+            // Map navigation menu focus item
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(viewId)) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Special UI scroll preservation rule
+            window.scrollTo(0,0);
+        }
+
+        // Post Rendering Factory
+        function renderFeed() {
+            const feedContainer = document.getElementById('main-feed-target');
+            if(!feedContainer) return;
+            
+            feedContainer.innerHTML = '';
+
+            globalPosts.forEach(post => {
+                // Determine if user has already assigned a like mutation state
+                const likeClass = post.likedByMe ? 'liked' : '';
+                const heartIcon = post.likedByMe ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+
+                // Assemble Comment HTML segments safely
+                let commentsHTML = '';
+                post.comments.forEach(comment => {
+                    commentsHTML += `
+                        <div class="comment-item">
+                            <strong>${comment.userHandle}</strong>: ${comment.text}
+                        </div>
+                    `;
+                });
+
+                // Generate primary Card Template
+                const card = document.createElement('div');
+                card.className = 'tweet-card';
+                card.id = `post-card-${post.id}`;
+                card.innerHTML = `
+                    <div class="avatar">${post.userDisplay.charAt(0)}</div>
+                    <div class="tweet-main-content">
+                        <div class="tweet-header">
+                            <div class="user-info">
+                                <span class="display-name">${post.userDisplay}</span>
+                                <span class="username">${post.userHandle}</span>
+                            </div>
+                        </div>
+                        <div class="tweet-text">${post.content}</div>
+                        
+                        <!-- Reactive Action Panel -->
+                        <div class="tweet-actions">
+                            <div class="action-btn ${likeClass}" onclick="toggleLike(${post.id})">
+                                <i class="${heartIcon}"></i> <span>${post.likes}</span>
+                            </div>
+                            <div class="action-btn comment-btn" onclick="focusCommentInput(${post.id})">
+                                <i class="fa-regular fa-comment"></i> <span>${post.comments.length}</span>
+                            </div>
+                        </div>
+
+                        <!-- Nested Comment Workspace Thread -->
+                        <div class="comment-section">
+                            <div class="comment-input-box">
+                                <input type="text" class="comment-input" id="com-input-${post.id}" placeholder="Write a public comment...">
+                                <button class="btn-premium" style="padding: 4px 10px; font-size:12px;" onclick="addComment(${post.id})">Reply</button>
+                            </div>
+                            <div id="comment-list-target-${post.id}">
+                                ${commentsHTML}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                feedContainer.appendChild(card);
+            });
+
+            // Keep Administrative dashboard synchronized immediately
+            renderAdminDashboard();
+        }
+
+        // Action Mutation Functions: Add Post
+        function createNewPost() {
+            const textarea = document.getElementById('post-textarea');
+            if(!textarea || textarea.value.trim() === '') return;
+
+            const newPost = {
+                id: Date.now(),
+                userHandle: "@current_user",
+                userDisplay: "You (Authorized Member)",
+                content: textarea.value,
+                likes: 0,
+                likedByMe: false,
+                comments: []
+            };
+
+            globalPosts.unshift(newPost);
+            textarea.value = '';
+            renderFeed();
+        }
+
+        // Action Mutation Functions: Toggle Like state
+        function toggleLike(postId) {
+            const post = globalPosts.find(p => p.id === postId);
+            if(!post) return;
+
+            if(post.likedByMe) {
+                post.likes--;
+                post.likedByMe = false;
+            } else {
+                post.likes++;
+                post.likedByMe = true;
+            }
+            renderFeed();
+        }
+
+        // Focus utilities
+        function focusCommentInput(postId) {
+            const el = document.getElementById(`com-input-${postId}`);
+            if(el) el.focus();
+        }
+
+        // Action Mutation Functions: Post nested comment
+        function addComment(postId) {
+            const input = document.getElementById(`com-input-${postId}`);
+            if(!input || input.value.trim() === '') return;
+
+            const post = globalPosts.find(p => p.id === postId);
+            if(!post) return;
+
+            post.comments.push({
+                id: Date.now(),
+                userHandle: "@current_user",
+                text: input.value
+            });
+
+            input.value = '';
+            renderFeed();
+        }
+
+        // ADMINISTRATIVE GRID CONTROL FUNCTIONS (Secret Protection Area Simulation)
+        function renderAdminDashboard() {
+            const userTarget = document.getElementById('admin-user-list-target');
+            const commentTarget = document.getElementById('admin-comment-list-target');
+            
+            if(!userTarget || !commentTarget) return;
+
+            // 1. Clear and Populate User moderation pane
+            userTarget.innerHTML = '';
+            globalUsers.forEach(user => {
+                const item = document.createElement('div');
+                item.className = 'admin-list-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${user.name}</strong> <span style="font-size:12px; color:var(--text-muted);">${user.handle}</span>
+                        <br><span style="font-size:11px; color: ${user.status === 'Active' ? '#4ff34f' : 'var(--netflix-red)'}">${user.status}</span>
+                    </div>
+                    <div>
+                        ${user.status === 'Active' ? `<button class="btn-danger" onclick="adminBlockUser('${user.handle}')">Block Node</button>` : `<button class="btn-warn" onclick="adminUnblockUser('${user.handle}')">Unblock</button>`}
+                    </div>
+                `;
+                userTarget.appendChild(item);
+            });
+
+            // 2. Clear and Populate Comment tracking system
+            commentTarget.innerHTML = '';
+            let commentCount = 0;
+            globalPosts.forEach(post => {
+                post.comments.forEach(comment => {
+                    commentCount++;
+                    const item = document.createElement('div');
+                    item.className = 'admin-list-item';
+                    item.innerHTML = `
+                        <div style="max-width:70%;">
+                            <span style="font-size:11px; color:var(--admin-gold);">${comment.userHandle}</span>
+                            <p style="font-size:13px; margin-top:2px;">"${comment.text}"</p>
+                        </div>
+                        <div>
+                            <button class="btn-danger" onclick="adminDeleteComment(${post.id}, ${comment.id})">Purge</button>
+                        </div>
+                    `;
+                    commentTarget.appendChild(item);
+                });
+            });
+
+            if(commentCount === 0) {
+                commentTarget.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">No comments found on platform stream records.</p>';
+            }
+        }
+
+        // Administrative Master Mutation Command: Block user profile node
+        function adminBlockUser(handle) {
+            const user = globalUsers.find(u => u.handle === handle);
+            if(user) {
+                user.status = 'Suspended/Banned';
+                alert(`Security Notification: User system ${handle} has been restricted access status safely.`);
+                renderAdminDashboard();
+            }
+        }
+
+        // Administrative Master Mutation Command: Restore blocked profile node
+        function adminUnblockUser(handle) {
+            const user = globalUsers.find(u => u.handle === handle);
+            if(user) {
+                user.status = 'Active';
+                renderAdminDashboard();
+            }
+        }
+
+        // Administrative Master Mutation Command: Force purge unwanted comments
+        function adminDeleteComment(postId, commentId) {
+            const post = globalPosts.find(p => p.id === postId);
+            if(post) {
+                post.comments = post.comments.filter(c => c.id !== commentId);
+                alert("Security Notification: Chosen stream interaction successfully purged from state engine.");
+                renderFeed();
+            }
+        }
+
+        // Application bootstrap on completion of component parsing
+        window.onload = function() {
+            renderFeed();
+        };
+    </script>
+</body>
+</html>
